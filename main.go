@@ -3,7 +3,7 @@ package main
 import (
 	"news.com/events/src")
 
-func main(){
+func main1(){
 	s := another.Sphere{
 		Radius : 8.0,
 	}
