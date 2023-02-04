@@ -21,7 +21,7 @@ func main3() {
 	m := User1{}
 	postBody, _ := json.Marshal(user)
 	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post("https://reqres.in/api/users", "application/json", responseBody)
+	resp, err := http.Post("https://reqres.in/api/users", "json", responseBody)
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
