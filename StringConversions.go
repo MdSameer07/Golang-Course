@@ -23,7 +23,7 @@ func FloatToString(value float64) string {
 	return strconv.FormatFloat(value, 'f', 2, 64)
 }
 
-func main(){
+func main4(){
 	isFailed := false
 	if stringToInt("10") != 10 {
 		fmt.Println("Failed: stringToInt")
