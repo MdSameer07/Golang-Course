@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "fmt"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 )
@@ -63,4 +63,9 @@ func Update(db *gorm.DB,Name,M_Name,Dept string){
 		"ManagerId": db.Model(Employee{}).Where("emp_name = ?",M_Name).Select("id").SubQuery(),
 		"department_id": db.Model(Department{}).Where("name=?",Dept).Select("id").SubQuery(),
 	})
+}
+
+func (e *Employee) AfterCreate() error{
+	fmt.Println("User created successfully")
+	return nil
 }
