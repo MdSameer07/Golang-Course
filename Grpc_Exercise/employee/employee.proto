@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "/employee";
+
+package employee;
+
+service EmployeeService{
+    rpc CreateEmployee(CreateEmployeeRequest)returns (CreateEmployeeResponse){}
+    rpc ReadEmployee(ReadEmployeeRequest)returns (ReadEmployeeResponse){}
+    rpc UpdateEmployee(UpdateEmployeeRequest)returns (UpdateEmployeeResponse){}
+    rpc DeleteEmployee(DeleteEmployeeRequest)returns (DeleteEmployeeResponse){}
+}
+
+message Employee {
+    uint32 id = 1;
+    string name = 2;
+    uint32 department_id = 3;
+    Department department = 4;
+    uint32 manager_id = 5;
+    Employee manager = 6;
+}
+
+message Department{
+    uint32 id = 1;
+    string name = 2;
+}
+
+message CreateEmployeeRequest{
+    string EmployeeName = 1;
+    string ManagerName = 2;
+    string Department = 3;
+}
+
+message CreateEmployeeResponse{
+    string message = 1;
+}
+
+message ReadEmployeeRequest{
+    int32 EmployeeId = 1;
+}
+
+message ReadEmployeeResponse{
+    Employee employee = 1;
+}
+
+message UpdateEmployeeRequest{
+    string EmployeeName = 1;
+    string ManagerName = 2;
+    string Department = 3;
+}
+
+message UpdateEmployeeResponse{
+    string message = 1;
+}
+
+message DeleteEmployeeRequest{
+    string EmployeeName = 1;
+}
+
+message DeleteEmployeeResponse{
+    string message = 1;
+}
