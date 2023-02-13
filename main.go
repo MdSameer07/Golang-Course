@@ -8,11 +8,13 @@ func main(){
 		Radius : 8.0,
 	}
 	another.CalculateVolume(s,"Sphere")
+	another.StringerFunction(s)
 
 	c := another.Cube{
 		Length : 8.0,
 	}
 	another.CalculateVolume(c,"Cube")
+	another.StringerFunction(c)
 
 	b := another.Box{
 		Length : 6.0,
@@ -20,4 +22,5 @@ func main(){
 		Height : 8.0,
 	}
 	another.CalculateVolume(b,"Box")
+	another.StringerFunction(b)
 }

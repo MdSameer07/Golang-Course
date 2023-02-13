@@ -33,8 +33,13 @@ func (s Sphere) String() string{
 
 type OfStructure interface {
 	Volume() float64
-	String() string
+	// String() string
 }
+
+type Stringer interface {
+    String() string
+}
+
 
 func (c Cube) Volume() float64 {
 	return c.Length * c.Length * c.Length
@@ -50,8 +55,13 @@ func (b Box) Volume() float64 {
 
 func CalculateVolume(kind OfStructure, called string) {
 	fmt.Printf("The Volume calculated for our %s is: %f\n", called, kind.Volume())
-	fmt.Printf(kind.String())
+	// fmt.Printf(kind.String())
 	fmt.Printf("\n")
+}
+
+func StringerFunction(kind Stringer){
+	fmt.Printf(kind.String())
+	fmt.Println("\n")
 }
 
 func main() {
@@ -71,6 +81,10 @@ func main() {
 	}
 
 	CalculateVolume(c, "Cube")
+	StringerFunction(c)
 	CalculateVolume(b, "Box")
+	StringerFunction(b)
 	CalculateVolume(s, "Sphere")
+	StringerFunction(s)
+
 }
