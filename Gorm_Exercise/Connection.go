@@ -7,7 +7,7 @@ import (
 )
 
 func main1(){
-	db,err := gorm.Open("postgres","user=sameer password=******** dbname=exercise host=localhost port=5432 sslmode=disable")  
+	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
 	if err!=nil{
 		panic(err.Error())
 	}
