@@ -18,15 +18,18 @@ func main2(){
 	resp,err := http.Get("https://reqres.in/api/users?page=2")
 	if err!=nil{
 		fmt.Println(err)
+		return 
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
+		return 
 	}
 	err1 := json.Unmarshal(body, &m)
-	if err != nil {
+	if err1 != nil {
 		log.Fatalln(err1)
+		return
 	}
 	fmt.Println(m.Page)
 	fmt.Println(m.Total)
