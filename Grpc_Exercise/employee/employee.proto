@@ -14,10 +14,11 @@ service EmployeeService{
 message Employee {
     uint32 id = 1;
     string name = 2;
-    uint32 department_id = 3;
-    Department department = 4;
-    uint32 manager_id = 5;
-    Employee manager = 6;
+    string email = 3;
+    uint32 department_id = 4;
+    Department department = 5;
+    uint32 manager_id = 6;
+    Employee manager = 7;
 }
 
 message Department{
@@ -27,12 +28,14 @@ message Department{
 
 message CreateEmployeeRequest{
     string EmployeeName = 1;
-    string ManagerName = 2;
-    string Department = 3;
+    string EmployeeEmail = 2;
+    string ManagerName = 3;
+    string ManagerEmail = 4;
+    string Department = 5;
 }
 
 message CreateEmployeeResponse{
-    string message = 1;
+    Employee employee = 1;
 }
 
 message ReadEmployeeRequest{
@@ -44,17 +47,18 @@ message ReadEmployeeResponse{
 }
 
 message UpdateEmployeeRequest{
-    string EmployeeName = 1;
-    string ManagerName = 2;
-    string Department = 3;
+    string EmployeeEmail = 1;
+    string ManagerEmail = 2;
+    string ManagerName = 3;
+    string Department = 4;
 }
 
 message UpdateEmployeeResponse{
-    string message = 1;
+    Employee employee = 1;
 }
 
 message DeleteEmployeeRequest{
-    string EmployeeName = 1;
+    string EmployeeEmail = 1;
 }
 
 message DeleteEmployeeResponse{
