@@ -1,8 +1,12 @@
 package main
 
 import (
+	"fmt"
 	_ "fmt"
+	"log"
+	"os"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -22,15 +26,31 @@ type Department struct{
 }
 
 func main2(){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+		return
+	}
+
+	Db_details := os.Getenv("DB_Details")
+	db,err := gorm.Open("postgres",Db_details)    
 	if err!=nil{
 		panic(err.Error())
 	}
 	defer db.Close()
 
-	db.DropTable(&Employee{})
-	db.DropTable(&Department{})
+	if err = db.DropTable(&Employee{}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
+	if err = db.DropTable(&Department{}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 	db.AutoMigrate(&Employee{},&Department{})
-	db.Model(&Employee{}).AddForeignKey("department_id","departments(id)","CASCADE","CASCADE")
+	if err = db.Model(&Employee{}).AddForeignKey("department_id","departments(id)","CASCADE","CASCADE").Error;err!=nil{
+		fmt.Println(err)
+		return
+	}
 	println("done")
 }

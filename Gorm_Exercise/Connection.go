@@ -2,12 +2,22 @@ package main
 
 import (
 	_ "fmt"
+	"log"
+	"os"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func main1(){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+		return
+	}
+
+	Db_details := os.Getenv("DB_Details")
+	db,err := gorm.Open("postgres",Db_details)  
 	if err!=nil{
 		panic(err.Error())
 	}

@@ -2,23 +2,42 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 //Marketing,Finance,Sales,Purchasing,Operations
 
 func main3(){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+		return
+	}
+
+	Db_details := os.Getenv("DB_Details")
+	db,err := gorm.Open("postgres",Db_details)   
 	if err!=nil{
 		panic(err.Error())
 	}
 	defer db.Close()
 
-	db.DropTable(&Employee{})
-	db.DropTable(&Department{})
+	if err = db.DropTable(&Employee{}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
+	if err = db.DropTable(&Department{}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
-	db.AutoMigrate(&Employee{},&Department{})
+	if err = db.AutoMigrate(&Employee{},&Department{}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
 	departments := []Department{
 		{Name:"Marketing"},
@@ -29,14 +48,23 @@ func main3(){
 	}
 
 	for _,department := range departments{
-		db.Create(&department)
+		if err = db.Create(&department).Error; err!=nil{
+			fmt.Println(err)
+			return
+		}
 	}
 
 	var dept Department
-	db.FirstOrCreate(&dept,Department{Name: "Coding"})
+	if err = db.FirstOrCreate(&dept,Department{Name: "Coding"}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
 	var emp Employee
-	db.FirstOrCreate(&emp,Employee{EmpName: "Sai",EmpEmail: "sai1@gmail.com"})
+	if err = db.FirstOrCreate(&emp,Employee{EmpName: "Sai",EmpEmail: "sai1@gmail.com"}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
 	if emp.DepartmentId != 0 && emp.DepartmentId != dept.ID {
         fmt.Println("Manager's department is different from employee's department. Cannot create new employee.")
@@ -44,7 +72,10 @@ func main3(){
     }
     if emp.DepartmentId == 0 {
         emp.DepartmentId = dept.ID
-        db.Save(&emp)
+        if err = db.Save(&emp).Error;err!=nil{
+			fmt.Println(err)
+			return 
+		}
     }
 
 	empl := &Employee{
@@ -54,13 +85,22 @@ func main3(){
 		ManagerId: &emp.ID,
 	}
 
-	db.Create(&empl)
+	if err = db.Create(&empl).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
 	var dept2 Department
-	db.FirstOrCreate(&dept2,Department{Name: "Testing"})
+	if err = db.FirstOrCreate(&dept2,Department{Name: "Testing"}).Error; err!=nil{
+		fmt.Println(err)
+		return 
+	}
 
 	var emp2 Employee
-	db.FirstOrCreate(&emp2,Employee{EmpName: "Sai",EmpEmail: "sai1@gmail.com"})
+	if err = db.FirstOrCreate(&emp2,Employee{EmpName: "Sai",EmpEmail: "sai1@gmail.com"}).Error; err!=nil{
+		fmt.Println(err)
+		return
+	}
 
 	if emp2.DepartmentId != 0 && emp2.DepartmentId != dept2.ID {
         fmt.Println("Manager's department is different from employee's department. Cannot create new employee.")
@@ -68,7 +108,10 @@ func main3(){
     }
     if emp2.DepartmentId == 0 {
         emp2.DepartmentId = dept2.ID
-        db.Save(&emp2)
+        if err = db.Save(&emp2).Error; err!=nil{
+			fmt.Println(err)
+			return 
+		}
     }
 
 	employ := &Employee{
@@ -78,7 +121,10 @@ func main3(){
 		ManagerId: &emp2.ID,
 	}
 
-	db.Create(&employ)
+	if err = db.Create(&employ).Error; err!=nil{
+		fmt.Println(err)
+		return
+	}
 
 	// employees := []Employee{
 	// 	{EmpName: "Sameer"},
@@ -110,10 +156,13 @@ func main3(){
 }
 
 func Update(db *gorm.DB,Name,M_Name,Dept string){
-	db.Model(Employee{}).Where("emp_name = ?",Name).Updates(map[string]interface{}{
+	if err := db.Model(Employee{}).Where("emp_name = ?",Name).Updates(map[string]interface{}{
 		"ManagerId": db.Model(Employee{}).Where("emp_name = ?",M_Name).Select("id").SubQuery(),
 		"department_id": db.Model(Department{}).Where("name=?",Dept).Select("id").SubQuery(),
-	})
+	}).Error;err!=nil{
+		fmt.Println(err)
+		return 
+	}
 }
 
 func (e *Employee) AfterCreate() error{
