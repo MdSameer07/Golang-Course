@@ -8,15 +8,18 @@ import (
 	"news.com/events/Grpc_Exercise/employee"
 )
 
+var conn *grpc.ClientConn
+var err error
+
 func main() {
-	Conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err = grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 		return 
 	}
-	defer Conn.Close()
+	defer conn.Close()
 
-	client := employee.NewEmployeeServiceClient(Conn)
+	client := employee.NewEmployeeServiceClient(conn)
 
 	//Creating(C)
 

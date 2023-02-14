@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -39,19 +41,14 @@ type employeeServiceServer struct{
 }
 
 func (s *employeeServiceServer) CreateEmployee(ctx context.Context,req *employee.CreateEmployeeRequest) (*employee.CreateEmployeeResponse,error){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
-	if err!=nil{
-		return nil,status.Errorf(codes.Aborted,"Connection with Database Failed")
-	}
-	defer db.Close()
 
 	var dept Department
-	if err1 := db.FirstOrCreate(&dept,Department{Name: req.GetDepartment()}).Error; err1!=nil{
+	if err1 := s.db.FirstOrCreate(&dept,Department{Name: req.GetDepartment()}).Error; err1!=nil{
 		return nil,fmt.Errorf("Error occured during reading or creating a department")
 	}
 
 	var man Employee
-	if err2 := db.FirstOrCreate(&man,Employee{EmpName: req.GetManagerName(),EmpEmail: req.GetManagerEmail()}).Error; err2!=nil{
+	if err2 := s.db.FirstOrCreate(&man,Employee{EmpName: req.GetManagerName(),EmpEmail: req.GetManagerEmail()}).Error; err2!=nil{
 		return nil,fmt.Errorf("Error occured during reading or creating manager")
 	}
 
@@ -60,7 +57,7 @@ func (s *employeeServiceServer) CreateEmployee(ctx context.Context,req *employee
     }
     if man.DepartmentId == 0 {
         man.DepartmentId = dept.ID
-        db.Save(&man)
+        s.db.Save(&man)
     }
 	
 	employeeStruct := &Employee{
@@ -70,12 +67,12 @@ func (s *employeeServiceServer) CreateEmployee(ctx context.Context,req *employee
 		ManagerId: &man.ID,
 	}
 
-	if err := db.Create(employeeStruct).Error; err!=nil{
+	if err := s.db.Create(employeeStruct).Error; err!=nil{
 		return nil,status.Errorf(codes.Internal,"Creation of employee failed")
 	}
 
 	var emp Employee
-	db.Model(&Employee{}).Where("emp_email=?",req.EmployeeEmail).Find(&emp)
+	s.db.Model(&Employee{}).Where("emp_email=?",req.EmployeeEmail).Find(&emp)
 
 
 	resp := &employee.CreateEmployeeResponse{
@@ -98,14 +95,9 @@ func (s *employeeServiceServer) CreateEmployee(ctx context.Context,req *employee
 }
 
 func (s *employeeServiceServer) ReadEmployee(ctx context.Context,req *employee.ReadEmployeeRequest) (*employee.ReadEmployeeResponse,error){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
-	if err!=nil{
-		return nil,status.Errorf(codes.Aborted,"Connection with Database Failed")
-	}
-	defer db.Close()
 
 	var emp Employee
-	result := db.Model(&Employee{}).Where("id=?",req.GetEmployeeId()).Find(&emp)
+	result := s.db.Model(&Employee{}).Where("id=?",req.GetEmployeeId()).Find(&emp)
 
 	if result.Error != nil{
 		if result.RecordNotFound()==true{
@@ -129,14 +121,9 @@ func (s *employeeServiceServer) ReadEmployee(ctx context.Context,req *employee.R
 }
 
 func (s *employeeServiceServer) UpdateEmployee(ctx context.Context,req *employee.UpdateEmployeeRequest) (*employee.UpdateEmployeeResponse,error){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
-	if err!=nil{
-		return nil,status.Errorf(codes.Aborted,"Connection with Database Failed")
-	}
-	defer db.Close()
 
 	var emp1 Employee
-	result := db.Model(&Employee{}).Where("emp_email=?",req.GetEmployeeEmail()).Find(&emp1)
+	result := s.db.Model(&Employee{}).Where("emp_email=?",req.GetEmployeeEmail()).Find(&emp1)
 
 	if result.Error != nil{
 		if result.RecordNotFound()==true{
@@ -146,7 +133,7 @@ func (s *employeeServiceServer) UpdateEmployee(ctx context.Context,req *employee
 
 	var emp2 Employee
 
-	if err1 := db.FirstOrCreate(&emp2,Employee{EmpName:req.GetManagerName(),EmpEmail: req.GetManagerEmail()}); err1!=nil{
+	if err1 := s.db.FirstOrCreate(&emp2,Employee{EmpName:req.GetManagerName(),EmpEmail: req.GetManagerEmail()}); err1!=nil{
 		return nil,fmt.Errorf("Error while reading or creating manager")
 	}
 
@@ -156,11 +143,11 @@ func (s *employeeServiceServer) UpdateEmployee(ctx context.Context,req *employee
 
 	if emp2.DepartmentId==0{
 		emp2.DepartmentId = emp1.DepartmentId
-		db.Save(&emp2)
+		s.db.Save(&emp2)
 	}
 
 	emp1.ManagerId = &emp2.ID
-	db.Save(&emp1)
+	s.db.Save(&emp1)
 
 	resp := &employee.UpdateEmployeeResponse{
 		Employee: &employee.Employee{
@@ -177,14 +164,9 @@ func (s *employeeServiceServer) UpdateEmployee(ctx context.Context,req *employee
 
 
 func (s *employeeServiceServer) DeleteEmployee(ctx context.Context,req *employee.DeleteEmployeeRequest) (*employee.DeleteEmployeeResponse,error){
-	db,err := gorm.Open("postgres","user=sameer password=19189149 dbname=exercise host=localhost port=5432 sslmode=disable")  
-	if err!=nil{
-		return nil,status.Errorf(codes.Aborted,"Connection with Database Failed")
-	}
-	defer db.Close()
 
 	var emp Employee
-	result := db.Model(&Employee{}).Where("emp_email=?",req.GetEmployeeEmail()).Find(&emp)
+	result := s.db.Model(&Employee{}).Where("emp_email=?",req.GetEmployeeEmail()).Find(&emp)
 
 	if result.Error != nil{
 		if result.RecordNotFound()==true{
@@ -192,11 +174,11 @@ func (s *employeeServiceServer) DeleteEmployee(ctx context.Context,req *employee
 		}
 	}
 
-	if err := db.Model(&Employee{}).Where("manager_id = ?", emp.ID).Updates(map[string]interface{}{"manager_id": nil}).Error; err!=nil{
+	if err := s.db.Model(&Employee{}).Where("manager_id = ?", emp.ID).Updates(map[string]interface{}{"manager_id": nil}).Error; err!=nil{
 		return nil,fmt.Errorf("Error while making manager_ids nil")
 	}
 	
-	if err2 := db.Delete(&emp).Error; err2!=nil{
+	if err2 := s.db.Delete(&emp).Error; err2!=nil{
 		return nil,fmt.Errorf("Error while deleting an employee")
 	}
 
@@ -214,8 +196,22 @@ func main(){
 		log.Fatalf("failed to listen: %v", err)
 		return 
 	}
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	Db_details := os.Getenv("DB_Details")
+
 	s := grpc.NewServer()
-	employee.RegisterEmployeeServiceServer(s,&employeeServiceServer{})
+	db,err := gorm.Open("postgres",Db_details)  
+	if err!=nil{
+		fmt.Printf("Connection with database failed")
+		return
+	}
+	defer db.Close()
+	employee.RegisterEmployeeServiceServer(s,&employeeServiceServer{db:db})
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
