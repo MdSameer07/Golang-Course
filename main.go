@@ -1,20 +1,23 @@
 package main
 
 import (
-	"news.com/events/src")
+	"fmt"
+
+	"news.com/events/src"
+)
 
 func main(){
 	s := another.Sphere{
 		Radius : 8.0,
 	}
 	another.CalculateVolume(s,"Sphere")
-	another.StringerFunction(s)
+	fmt.Println(s)
 
 	c := another.Cube{
 		Length : 8.0,
 	}
 	another.CalculateVolume(c,"Cube")
-	another.StringerFunction(c)
+	fmt.Println(c)
 
 	b := another.Box{
 		Length : 6.0,
@@ -22,5 +25,5 @@ func main(){
 		Height : 8.0,
 	}
 	another.CalculateVolume(b,"Box")
-	another.StringerFunction(b)
+	fmt.Println(b)
 }

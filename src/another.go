@@ -59,10 +59,10 @@ func CalculateVolume(kind OfStructure, called string) {
 	fmt.Printf("\n")
 }
 
-func StringerFunction(kind Stringer){
-	fmt.Printf(kind.String())
-	fmt.Println("\n")
-}
+// func StringerFunction(kind Stringer){
+// 	fmt.Printf(kind.String())
+// 	fmt.Println("\n")
+// }
 
 func main() {
 
@@ -81,10 +81,10 @@ func main() {
 	}
 
 	CalculateVolume(c, "Cube")
-	StringerFunction(c)
+	fmt.Println(c)
 	CalculateVolume(b, "Box")
-	StringerFunction(b)
+	fmt.Println(b)
 	CalculateVolume(s, "Sphere")
-	StringerFunction(s)
+	fmt.Println(s)
 
 }
