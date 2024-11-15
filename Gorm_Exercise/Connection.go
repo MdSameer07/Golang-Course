@@ -9,6 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// haha this functions doesn't look good
 func main1(){
 	err := godotenv.Load()
 	if err != nil {
